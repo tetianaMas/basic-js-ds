@@ -16,108 +16,103 @@ module.exports = class BinarySearchTree {
   }
 
   add(data) {
-    this.rootNode = addWithin(data, this.rootNode);
+    const newNode = new Node(data);
+    if (this.rootNode === null) {
+      this.rootNode = newNode;
+    } else {
+      this.addRecursive(this.rootNode, newNode);
+    }
+  }
 
-    function addWithin(value, node) {
-      if (!node) {
-        return new Node(value);
-      }
-
-      if (node.data === value) {
-        return node;
-      }
-
-      if (value < node.data) {
-        node.left = addWithin(value, node.left);
+  addRecursive(node, newNode) {
+    if (newNode.data < node.data) {
+      if (node.left) {
+        this.addRecursive(node.left, newNode);
       } else {
-        node.right = addWithin(value, node.right);
+        node.left = newNode;
       }
-
-      return node;
+    } else {
+      if (node.right) {
+        this.addRecursive(node.right, newNode);
+      } else {
+        node.right = newNode;
+      }
     }
   }
 
   has(data) {
-    return hasWithin(data, this.rootNode);
+    return this.hasRecursive(data, this.rootNode);
+  }
 
-    function hasWithin(value, node) {
-      if (!node) {
-        return false;
-      }
-
-      if (node.data === value) {
-        return true;
-      }
-
-      if (value < node.data) {
-        return hasWithin(value, node.left);
-      } else {
-        return hasWithin(value, node.right);
-      }
+  hasRecursive(data, node) {
+    if (!node) {
+      return false;
+    } else if (data === node.data) {
+      return true;
+    } else if (data < node.data) {
+      return this.hasRecursive(data, node.left);
+    } else {
+      return this.hasRecursive(data, node.right);
     }
   }
 
   find(data) {
-    return findWithin(data, this.rootNode);
+    return this.findRecursive(data, this.rootNode);
+  }
 
-    function findWithin(value, node) {
-      if (!node) {
-        return null;
-      }
-
-      if (node.data === value) {
-        return node;
-      }
-
-      if (value < node.data) {
-        return findWithin(value, node.left);
-      } else {
-        return findWithin(value, node.right);
-      }
+  findRecursive(data, node) {
+    if (!node) {
+      return null;
+    } else if (data < node.data) {
+      return this.findRecursive(data, node.left);
+    } else if (data > node.data) {
+      return this.findRecursive(data, node.right);
+    } else {
+      return node;
     }
   }
 
   remove(data) {
-    this.rootNode = removeNode(data, this.rootNode);
+    this.rootNode = this.removeRecursive(data, this.rootNode);
+  }
 
-    function removeNode(value, node) {
-      if (!node) {
+  removeRecursive(value, node) {
+    if (!node) {
+      return null;
+    }
+
+    if (value < node.data) {
+      node.left = this.removeRecursive(value, node.left);
+      return node;
+    } else if (value > node.data) {
+      node.right = this.removeRecursive(value, node.right);
+      return node;
+    } else {
+      if (!node.left && !node.right) {
         return null;
       }
+    }
 
-      if (value < node.data) {
-        node.left = removeNode(value, node.left);
-        return node;
-      } else if (value > node.data) {
-        node.right = removeNode(value, node.right);
-        return node;
-      } else {
-        if (!node.left && !node.right) {
-          return null;
-        }
-      }
-
-      if (!node.left) {
-        node = node.right;
-        return node;
-      }
-
-      if (!node.right) {
-        node = node.left;
-        return node;
-      }
-
-      let maxFromLeft = node.left;
-      while (maxFromLeft.right) {
-        maxFromLeft = maxFromLeft.right;
-      }
-
-      node.data = maxFromLeft.data;
-
-      node.left = removeNode(maxFromLeft.data, node.left);
-
+    if (!node.left) {
+      node = node.right;
       return node;
     }
+
+    if (!node.right) {
+      node = node.left;
+      return node;
+    }
+
+    let maxFromLeft = node.left;
+    while (maxFromLeft.right) {
+      maxFromLeft = maxFromLeft.right;
+    }
+
+    node.data = maxFromLeft.data;
+
+    node.left = this.removeRecursive(maxFromLeft.data, node.left);
+
+    return node;
   }
 
   min() {
